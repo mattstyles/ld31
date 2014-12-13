@@ -10,16 +10,27 @@ module.exports = function( opts ) {
 
     return through.obj( function( file, enc, cb ) {
 
+        var moduleName = path.basename( file.path, '.js' );
+        var dest = args.d ?
+            path.join( opts.dest, path.basename( file.path ) ) :
+            './tmp/build.js';
+
         // Punting out to a temporary file is very un-gulp but builder wont write to a buffer so its the only option
-        builder.build( path.basename( file.path, '.js' ), path.join( build.target, 'public/scripts/main.js' ), {
+        builder.reset();
+        builder.build( moduleName, dest, {
             config: {
                 baseURL: path.dirname( file.path )
             },
-            minify: !args.d,
-            sourceMaps: !args.d
+            // minify: true,
+            sourceMaps: !!args.d
         })
             .then( function() {
-                cb( null, file );
+                file.contents = args.d ?
+                    fs.readFileSync( dest ) :
+                    fs.readFileSync( './tmp/build.js' );
+                rimraf( './tmp', function( err ) {
+                    cb( null, file );
+                });
             })
             .catch( function( err ) {
                 console.error( 'error::', err );

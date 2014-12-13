@@ -3,7 +3,7 @@ export default class Test {
         this.name = 'test';
     }
 
-    say() {
-        console.log( 'hello from the', this.name, 'class' );
+    say( something ) {
+        console.log( something || 'hello', 'from the', this.name, 'class' );
     }
 }

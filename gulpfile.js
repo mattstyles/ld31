@@ -19,6 +19,7 @@ var path        = require( 'path' ),
     uglify      = require( 'gulp-uglifyjs' ),
     concat      = require( 'gulp-concat' ),
     less        = require( 'gulp-less' ),
+    minifyCss   = require( 'gulp-minify-css' ),
     sourcemaps  = require( 'gulp-sourcemaps' ),
     watch       = require( 'gulp-watch' ),
     order       = require( 'gulp-order' ),
@@ -125,9 +126,10 @@ gulp.task( 'copy-server', function() {
 gulp.task( 'styles', function() {
     return gulp
         .src( './public/styles/main.less' )
-        .pipe( sourcemaps.init() )
+        .pipe( gulpif( args.d, sourcemaps.init() ) )
         .pipe( less() )
-        .pipe( sourcemaps.write() )
+        .pipe( gulpif( args.d, sourcemaps.write() ) )
+        .pipe( gulpif( !args.d, minifyCss() ) )
         .pipe( gulp.dest( path.join( build.target, 'public/styles/' ) ) )
         .pipe( livereload({
             auto: false
@@ -143,16 +145,24 @@ gulp.task( 'scripts', function() {
     // Build common include files to allow systemjs builder to work
     gulp.src( build.systemCommon )
         .pipe( uglify( 'common.js', {
-            outSourceMap: true
+            mangle: !args.d,
+            outSourceMap: !!args.d
         }))
         .pipe( gulp.dest( path.join( build.target, './public/scripts' ) ) );
 
     // Use systemjs builder to build the source
     gulp.src( './public/scripts/main.js' )
-        .pipe( builder() );
-        // .pipe( gulp.dest( path.join( build.target, './public/scripts' ) ) );
+        .pipe( builder({
+            dest: path.join( build.target, './public/scripts' )
+        }))
+        .pipe( gulpif( !args.d, uglify() ) )
+        .pipe( gulpif( !args.d, gulp.dest( path.join( build.target, './public/scripts' ) ) ) )
+        .pipe( livereload({
+            auto: false
+        }));
 
-    // Copy over the sourcemaps for a dev build
+    // Copy over the source for the sourcemaps for a dev build
+    // @TODO: should also copy over systemCommon files to be served also
     if ( args.d ) {
         gulp.src( './public/scripts/**/*.js' )
             .pipe( gulp.dest( path.join( build.target, 'public/public/scripts' ) ) ) ;
@@ -168,13 +178,14 @@ gulp.task( 'watch', [ 'build' ], function() {
 
     livereload.listen({ auto: true });
 
-    gulp.watch( './src/styles/**', [ 'styles' ]);
-    gulp.watch( './src/scripts/**', [ 'scripts' ]);
+    gulp.watch( './public/styles/**', [ 'styles' ]);
+    gulp.watch( './public/scripts/**', [ 'scripts' ]);
     gulp.watch( [
-        './src/index.hjs',
-        './src/tmpl/**'
+        './public/tmpl/**'
         ], [ 'tmpl' ] );
-    gulp.watch( './src/assets/**', [ 'copy' ]);
+    gulp.watch( './public/index.html', [ 'html' ]);
+    gulp.watch( './public/assets/**', [ 'copy-assets' ]);
+    gulp.watch( './lib/**', [ 'copy-server' ]);
 
     gutil.log( 'Watching...' );
 });
