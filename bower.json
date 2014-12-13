@@ -1,5 +1,8 @@
 {
   "name": "project_name",
   "version": "0.0.0",
-  "dependencies": {}
+  "dependencies": {
+    "handlebars": "~2.0.0",
+    "react": "~0.12.1"
+  }
 }

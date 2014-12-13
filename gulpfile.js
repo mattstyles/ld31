@@ -21,6 +21,9 @@ var path        = require( 'path' ),
     less        = require( 'gulp-less' ),
     minifyCss   = require( 'gulp-minify-css' ),
     sourcemaps  = require( 'gulp-sourcemaps' ),
+    handlebars  = require( 'gulp-handlebars' ),
+    defineModule= require( 'gulp-define-module' ),
+    react       = require( 'gulp-react' ),
     watch       = require( 'gulp-watch' ),
     order       = require( 'gulp-order' ),
     livereload  = require( 'gulp-livereload' ),
@@ -78,6 +81,51 @@ gulp.task( 'html', function() {
 
 
 /**
+ * Template
+ * ---
+ * Pre-compiles Handlebars templates ready to be consumed on the client.
+ * Handlebars tasks just copies over the handlebars runtime necessary to compile and then render templates.
+ */
+gulp.task( 'handlebars', function() {
+    return gulp
+        .src( './public/vendor/handlebars/handlebars.js' )
+        .pipe( gulp.dest( './public/scripts/' ) );
+});
+
+gulp.task( 'tmpl', [ 'handlebars' ], function() {
+    return gulp
+    .src( './public/**/*.hbs' )
+    .pipe( handlebars() )
+    .pipe( defineModule( 'node' ) )
+    .pipe( gulp.dest( './public/scripts' ) );
+});
+
+
+/**
+ * React
+ * ---
+ * Using react instead of static templating
+ */
+gulp.task( 'copy-react', function() {
+ return gulp
+ .src( './public/vendor/react/react.js' )
+ .pipe( gulp.dest( './public/scripts/' ) );
+});
+gulp.task( 'react', [ 'copy-react' ], function() {
+    return gulp
+        .src( './public/**/*.jsx' )
+        .pipe( react() )
+        // .pipe( defineModule( 'node' ) )
+        .pipe( defineModule( 'plain', {
+            // wrapper: 'var React = require( \'../react\');\nmodule.exports = <%= contents %>;'
+            // wrapper: 'import React from \'../react\';\nexport default <%= contents %>;'
+            wrapper: 'import React from \'../react\';\n<%= contents %>;'
+        }))
+        .pipe( gulp.dest( './public/scripts' ) );
+});
+
+
+/**
  * Copy-assets
  * ---
  * Copies over the public assets folder
@@ -121,7 +169,7 @@ gulp.task( 'copy-server', function() {
 /**
  * Styles
  * ---
- *
+ * Using less
  */
 gulp.task( 'styles', function() {
     return gulp
@@ -138,9 +186,11 @@ gulp.task( 'styles', function() {
 
 
 /**
-* Scripts
-*/
-gulp.task( 'scripts', function() {
+ * Scripts
+ * ---
+ * ES6 transpilation. Also allows using common/amd/es6 modules as dependencies.
+ */
+gulp.task( 'scripts', [ 'react' ], function() {
 
     // Build common include files to allow systemjs builder to work
     gulp.src( build.systemCommon )
@@ -172,17 +222,18 @@ gulp.task( 'scripts', function() {
 
 
 /**
-* Watch tasks
-*/
+ * Watch tasks
+ * ---
+ * Because watch and livereload is the shit
+ */
 gulp.task( 'watch', [ 'build' ], function() {
 
     livereload.listen({ auto: true });
 
     gulp.watch( './public/styles/**', [ 'styles' ]);
-    gulp.watch( './public/scripts/**', [ 'scripts' ]);
-    gulp.watch( [
-        './public/tmpl/**'
-        ], [ 'tmpl' ] );
+    gulp.watch( './public/scripts/**/*.js', [ 'scripts' ]);
+    gulp.watch( './public/**/*.hbs', [ 'scripts' ] );
+    gulp.watch( './public/**/*.jsx', [ 'scripts' ] );
     gulp.watch( './public/index.html', [ 'html' ]);
     gulp.watch( './public/assets/**', [ 'copy-assets' ]);
     gulp.watch( './lib/**', [ 'copy-server' ]);
