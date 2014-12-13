@@ -1,0 +1,5 @@
+#!/bin/bash
+# Make sure server boots using harmony
+
+~/.nvm/v0.11.14/bin/node --harmony ./index.js
+#node --harmony ./index.js
