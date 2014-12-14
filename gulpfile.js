@@ -116,9 +116,6 @@ gulp.task( 'react', [ 'copy-react' ], function() {
     return gulp
         .src( './public/**/*.jsx' )
         .pipe( react() )
-        .pipe( defineModule( 'plain', {
-            wrapper: 'import React from \'../react\';\n<%= contents %>;'
-        }))
         .pipe( flatten() )
         .pipe( gulp.dest( './public/scripts/views' ) );
 });

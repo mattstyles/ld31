@@ -10,7 +10,7 @@ module.exports = function( opts ) {
 
     return through.obj( function( file, enc, cb ) {
 
-        var moduleName = path.basename( file.path, '.js' );
+        var moduleName = './scripts/' + path.basename( file.path, '.js' );
         var dest = args.d ?
             path.join( opts.dest, path.basename( file.path ) ) :
             './tmp/build.js';
@@ -19,7 +19,7 @@ module.exports = function( opts ) {
         builder.reset();
         builder.build( moduleName, dest, {
             config: {
-                baseURL: path.dirname( file.path )
+                baseURL: './public'
             },
             // minify: true,
             sourceMaps: !!args.d

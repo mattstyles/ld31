@@ -1,6 +1,6 @@
 
 import View from '../../views/boxView';
-import React from '../../react';
+import React from 'vendor/react/react';
 
 React.render(React.createElement(View, null), document.getElementById( 'react'));
 

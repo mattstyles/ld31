@@ -1,7 +1,9 @@
+import React from 'vendor/react/react';
+
 export default React.createClass({
     getInitialState: function() {
         return {
-            content: 'Shazam'
+            content: 'Foo'
         }
     },
     render: function() {
