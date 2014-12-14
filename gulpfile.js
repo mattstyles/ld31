@@ -145,6 +145,7 @@ gulp.task( 'copy-assets', function() {
             './public/assets/**'
         ])
         .pipe( gulp.dest( copyStructure ) )
+        .pipe( alert( 'Assets copied' ) )
         .pipe( livereload({
             auto: false
         }));
@@ -164,7 +165,8 @@ gulp.task( 'copy-server', function() {
             './package.json',
             './index.js'
         ])
-        .pipe( gulp.dest( './dist' ) );
+        .pipe( gulp.dest( './dist' ) )
+        .pipe( alert( 'Server built' ) );
 
     // Copy over server dependencies, hardcode for now, should grab from package.json
     gulp.src([
@@ -188,6 +190,7 @@ gulp.task( 'styles', function() {
         .pipe( gulpif( args.d, sourcemaps.write() ) )
         .pipe( gulpif( !args.d, minifyCss() ) )
         .pipe( gulp.dest( path.join( build.target, 'public/styles/' ) ) )
+        .pipe( alert( 'Styles built' ) )
         .pipe( livereload({
             auto: false
         }));
@@ -216,6 +219,7 @@ gulp.task( 'scripts', [ 'react' ], function() {
         }))
         .pipe( gulpif( !args.d, uglify() ) )
         .pipe( gulpif( !args.d, gulp.dest( path.join( build.target, './public/scripts' ) ) ) )
+        .pipe( alert( 'Scripts built' ) )
         .pipe( livereload({
             auto: false
         }));
