@@ -2,7 +2,8 @@
   "name": "project_name",
   "version": "0.0.0",
   "dependencies": {
-    "handlebars": "~2.0.0",
-    "react": "~0.12.1"
+    "react": "~0.12.1",
+    "web-animations-js": "git://github.com/web-animations/web-animations-js#1.0.4",
+    "eventEmitter": "~4.2.11"
   }
 }

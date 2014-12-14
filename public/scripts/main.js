@@ -1,7 +1,5 @@
+import animations from 'vendor/web-animations-js/web-animations.min';
 
-import Test from './dep';
-import Box from './components/box/box';
+import Map from './map/mapCtrl';
 
-var test = new Test();
-
-test.say( 'Gouranga' );
+var map = new Map( document.getElementById( 'map' ) );

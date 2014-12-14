@@ -185,6 +185,7 @@ gulp.task( 'copy-server', function() {
 gulp.task( 'styles', function() {
     return gulp
         .src( './public/styles/main.less' )
+        .pipe( plumber() )
         .pipe( gulpif( args.d, sourcemaps.init() ) )
         .pipe( less() )
         .pipe( gulpif( args.d, sourcemaps.write() ) )
@@ -214,6 +215,7 @@ gulp.task( 'scripts', [ 'react' ], function() {
 
     // Use systemjs builder to build the source
     return gulp.src( './public/scripts/main.js' )
+        .pipe( plumber() )
         .pipe( builder({
             dest: path.join( build.target, './public/scripts' )
         }))
