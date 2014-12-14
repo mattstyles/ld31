@@ -27,6 +27,7 @@ var path        = require( 'path' ),
     watch       = require( 'gulp-watch' ),
     order       = require( 'gulp-order' ),
     flatten     = require( 'gulp-flatten' ),
+    plumber     = require( 'gulp-plumber' ),
     livereload  = require( 'gulp-livereload' ),
     notify      = require( 'gulp-notify' ),
 
@@ -107,24 +108,29 @@ gulp.task( 'tmpl', [ 'handlebars' ], function() {
  * ---
  * Using react instead of static templating
  */
-gulp.task( 'copy-react', function() {
-    return gulp
-        .src( './public/vendor/react/react.js' )
-        .pipe( gulp.dest( './public/scripts/' ) );
-});
-gulp.task( 'react', [ 'copy-react' ], function() {
+// gulp.task( 'copy-react', function() {
+//     return gulp
+//         .src( './public/vendor/react/react.js' )
+//         .pipe( gulp.dest( './public/scripts/' ) );
+// });
+// gulp.task( 'react', [ 'copy-react' ], function() {
+gulp.task( 'react', function() {
     return gulp
         .src( './public/**/*.jsx' )
         .pipe( react() )
         .pipe( flatten() )
-        .pipe( gulp.dest( './public/scripts/views' ) );
+        .pipe( gulp.dest( './public/views' ) );
 });
 gulp.task( 'strip-react', [ 'scripts' ], function() {
     return gulp
-        .src( './public/scripts/views', {
+        .src( './public/views', {
             read: false
         })
-        .pipe( rimraf() );
+        .pipe( plumber() )
+        .pipe( rimraf() )
+        .on( 'error', function( err ) {
+            console.log( 'error stripping views folder' );
+        });
 });
 
 
@@ -233,13 +239,14 @@ gulp.task( 'watch', [ 'build' ], function() {
 
     livereload.listen({ auto: true });
 
-    gulp.watch( './public/styles/**', [ 'styles' ]);
-    gulp.watch( './public/scripts/**/*.js', [ 'scripts' ]);
-    gulp.watch( './public/**/*.hbs', [ 'scripts' ] );
-    gulp.watch( './public/**/*.jsx', [ 'scripts' ] );
-    gulp.watch( './public/index.html', [ 'html' ]);
-    gulp.watch( './public/assets/**', [ 'copy-assets' ]);
-    gulp.watch( './lib/**', [ 'copy-server' ]);
+    gulp.watch( './public/styles/**/*', [ 'styles' ]);
+    gulp.watch([
+        './public/scripts/**/*.js',
+        './public/scripts/**/*.jsx',
+    ], [ 'strip-react' ]);
+    // gulp.watch( './public/index.html', [ 'html' ]);
+    gulp.watch( './public/assets/**/*', [ 'copy-assets' ]);
+    gulp.watch( './lib/**/*', [ 'copy-server' ]);
 
     gutil.log( 'Watching...' );
 });
