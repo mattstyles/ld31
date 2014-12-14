@@ -26,6 +26,7 @@ var path        = require( 'path' ),
     react       = require( 'gulp-react' ),
     watch       = require( 'gulp-watch' ),
     order       = require( 'gulp-order' ),
+    flatten     = require( 'gulp-flatten' ),
     livereload  = require( 'gulp-livereload' ),
     notify      = require( 'gulp-notify' ),
 
@@ -107,21 +108,26 @@ gulp.task( 'tmpl', [ 'handlebars' ], function() {
  * Using react instead of static templating
  */
 gulp.task( 'copy-react', function() {
- return gulp
- .src( './public/vendor/react/react.js' )
- .pipe( gulp.dest( './public/scripts/' ) );
+    return gulp
+        .src( './public/vendor/react/react.js' )
+        .pipe( gulp.dest( './public/scripts/' ) );
 });
 gulp.task( 'react', [ 'copy-react' ], function() {
     return gulp
         .src( './public/**/*.jsx' )
         .pipe( react() )
-        // .pipe( defineModule( 'node' ) )
         .pipe( defineModule( 'plain', {
-            // wrapper: 'var React = require( \'../react\');\nmodule.exports = <%= contents %>;'
-            // wrapper: 'import React from \'../react\';\nexport default <%= contents %>;'
             wrapper: 'import React from \'../react\';\n<%= contents %>;'
         }))
-        .pipe( gulp.dest( './public/scripts' ) );
+        .pipe( flatten() )
+        .pipe( gulp.dest( './public/scripts/views' ) );
+});
+gulp.task( 'strip-react', [ 'scripts' ], function() {
+    return gulp
+        .src( './public/scripts/views', {
+            read: false
+        })
+        .pipe( rimraf() );
 });
 
 
@@ -201,7 +207,7 @@ gulp.task( 'scripts', [ 'react' ], function() {
         .pipe( gulp.dest( path.join( build.target, './public/scripts' ) ) );
 
     // Use systemjs builder to build the source
-    gulp.src( './public/scripts/main.js' )
+    return gulp.src( './public/scripts/main.js' )
         .pipe( builder({
             dest: path.join( build.target, './public/scripts' )
         }))
@@ -246,7 +252,7 @@ gulp.task( 'watch', [ 'build' ], function() {
 /**
  * Build
  */
-gulp.task( 'build', [ 'copy-server', 'html', 'copy-assets', 'styles', 'scripts' ] );
+gulp.task( 'build', [ 'copy-server', 'html', 'copy-assets', 'styles', 'strip-react' ] );
 
 /**
  * Default task

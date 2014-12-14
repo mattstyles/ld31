@@ -6,7 +6,7 @@ export default React.createClass({
     },
     render: function() {
         return (
-            <h2 className="vartest">{this.state.content}</h2>
+            <h2 className="box vartest">{this.state.content}</h2>
         )
     }
 })
