@@ -204,6 +204,14 @@ gulp.task( 'styles', function() {
  * ES6 transpilation. Also allows using common/amd/es6 modules as dependencies.
  */
 gulp.task( 'scripts', [ 'react' ], function() {
+    // Copy over the source for the sourcemaps for a dev build
+    // @TODO: should also copy over systemCommon files to be served also
+    if ( args.d ) {
+        gulp.src( './public/scripts/**/*.js' )
+            .pipe( gulp.dest( path.join( build.target, 'public/public/scripts' ) ) ) ;
+            gulp.src( './public/vendor/**/*.js' )
+            .pipe( gulp.dest( path.join( build.target, 'public/public/vendor' ) ) ) ;
+    }
 
     // Build common include files to allow systemjs builder to work
     gulp.src( build.systemCommon )
@@ -225,13 +233,6 @@ gulp.task( 'scripts', [ 'react' ], function() {
         .pipe( livereload({
             auto: false
         }));
-
-    // Copy over the source for the sourcemaps for a dev build
-    // @TODO: should also copy over systemCommon files to be served also
-    if ( args.d ) {
-        gulp.src( './public/scripts/**/*.js' )
-            .pipe( gulp.dest( path.join( build.target, 'public/public/scripts' ) ) ) ;
-    }
 });
 
 

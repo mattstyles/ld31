@@ -4,6 +4,9 @@
   "dependencies": {
     "react": "~0.12.1",
     "web-animations-js": "git://github.com/web-animations/web-animations-js#1.0.4",
-    "eventEmitter": "~4.2.11"
+    "eventEmitter": "~4.2.11",
+    "svg.js": "git://github.com/mattstyles/svg.js#9a546f5d3866151f95f720f0bedbc3aa57359766",
+    "svg.parser.js": "~0.1.0",
+    "svg.import.js": "~1.0.1"
   }
 }
